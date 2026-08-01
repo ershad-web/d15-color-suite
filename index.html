@@ -29,10 +29,10 @@ function buildInterface() {
 }
 
 function renderSlots() {
-    const slotsContainer = document.getElementById('exam-slots-row'); 
-    slotsContainer.innerHTML = '';
+    const slotsContainer = document.getElementById("exam-slots-row"); 
+    slotsContainer.innerHTML = "";
     slotStorage.forEach((capId, slotIdx) => {
-        const slotBox = document.createElement('div'); 
+        const slotBox = document.createElement("div"); 
         slotBox.style.width = "64px"; 
         slotBox.style.height = "64px"; 
         slotBox.style.borderRadius = "50%"; 
@@ -61,21 +61,21 @@ function renderSlots() {
                 slotBox.innerHTML = ""; 
                 slotBox.setAttribute("draggable", "true"); 
                 slotBox.style.cursor = "grab";
-                slotBox.addEventListener('dragstart', (e) => { 
+                slotBox.addEventListener("dragstart", (e) => { 
                     activeDraggedCapId = capId; 
-                    activeSourceOrigin = 'slot'; 
+                    activeSourceOrigin = "slot"; 
                     activeSourceIndex = slotIdx; 
                 });
             }
         }
-        slotBox.addEventListener('dragover', (e) => e.preventDefault());
-        slotBox.addEventListener('drop', (e) => {
+        slotBox.addEventListener("dragover", (e) => e.preventDefault());
+        slotBox.addEventListener("drop", (e) => {
             e.preventDefault(); 
             if (slotStorage[slotIdx] !== null) return;
-            if (activeSourceOrigin === 'pile') { 
+            if (activeSourceOrigin === "pile") { 
                 sourcePile.splice(activeSourceIndex, 1); 
                 slotStorage[slotIdx] = activeDraggedCapId; 
-            } else if (activeSourceOrigin === 'slot') { 
+            } else if (activeSourceOrigin === "slot") { 
                 slotStorage[activeSourceIndex] = null; 
                 slotStorage[slotIdx] = activeDraggedCapId; 
             }
@@ -85,13 +85,13 @@ function renderSlots() {
 }
 
 function renderPile() {
-    const pileContainer = document.getElementById('scrambled-source-pile'); 
-    pileContainer.innerHTML = '';
+    const pileContainer = document.getElementById("scrambled-source-pile"); 
+    pileContainer.innerHTML = "";
     if (sourcePile.length === 0) { 
         pileContainer.innerHTML = "<div style='color:#7EE787; font-weight:bold;'>🎉 ALL COINS PLACED! CLICK THE BUTTON BELOW TO SCORE.</div>"; 
     }
     sourcePile.forEach((capId, pileIdx) => {
-        const coin = document.createElement('div'); 
+        const coin = document.createElement("div"); 
         coin.style.width = "60px"; 
         coin.style.height = "60px"; 
         coin.style.borderRadius = "50%"; 
@@ -103,17 +103,17 @@ function renderPile() {
         coin.style.cursor = "grab"; 
         coin.setAttribute("draggable", "true"); 
         coin.innerHTML = "";
-        coin.addEventListener('dragstart', () => { 
+        coin.addEventListener("dragstart", () => { 
             activeDraggedCapId = capId; 
-            activeSourceOrigin = 'pile'; 
+            activeSourceOrigin = "pile"; 
             activeSourceIndex = pileIdx; 
         });
         pileContainer.appendChild(coin);
     });
-    pileContainer.addEventListener('dragover', (e) => e.preventDefault());
-    pileContainer.addEventListener('drop', (e) => {
+    pileContainer.addEventListener("dragover", (e) => e.preventDefault());
+    pileContainer.addEventListener("drop", (e) => {
         e.preventDefault(); 
-        if (activeSourceOrigin === 'slot') { 
+        if (activeSourceOrigin === "slot") { 
             slotStorage[activeSourceIndex] = null; 
             sourcePile.push(activeDraggedCapId); 
             buildInterface(); 
@@ -121,14 +121,14 @@ function renderPile() {
     });
 }
 
-document.getElementById('score-btn').addEventListener('click', () => {
+document.getElementById("score-btn").addEventListener("click", () => {
     let incomplete = slotStorage.includes(null);
-    const reportDiv = document.getElementById('diagnostic-report'); 
-    const tesSpan = document.getElementById('tes-val'); 
-    const alertCard = document.getElementById('alert-card'); 
-    const resetBtn = document.getElementById('reset-btn');
+    const reportDiv = document.getElementById("diagnostic-report"); 
+    const tesSpan = document.getElementById("tes-val"); 
+    const alertCard = document.getElementById("alert-card"); 
+    const resetBtn = document.getElementById("reset-btn");
     if (incomplete) {
-        reportDiv.style.display = 'block'; 
+        reportDiv.style.display = "block"; 
         tesSpan.innerText = "N/A"; 
         alertCard.innerText = "⚠️ CANNOT CALIBRATE: Please place all 12 color coins into the tray before running diagnosis."; 
         alertCard.style.backgroundColor = "#3B1B1E"; 
@@ -141,9 +141,9 @@ document.getElementById('score-btn').addEventListener('click', () => {
         let diff = Math.abs(slotStorage[i] - slotStorage[i+1]); 
         if (diff > 1) totalError += (diff - 1); 
     }
-    reportDiv.style.display = 'block'; 
+    reportDiv.style.display = "block"; 
     tesSpan.innerText = totalError; 
-    resetBtn.style.display = 'inline-block';
+    resetBtn.style.display = "inline-block";
     if (totalError === 0) { 
         alertCard.innerText = "✅ PASS: Perfect color sequence arrangement detected."; 
         alertCard.style.backgroundColor = "#13231B"; 
@@ -157,11 +157,11 @@ document.getElementById('score-btn').addEventListener('click', () => {
     }
 });
 
-document.getElementById('reset-btn').addEventListener('click', () => {
+document.getElementById("reset-btn").addEventListener("click", () => {
     slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13]; 
     sourcePile = [...originalScrambledPile];
-    document.getElementById('diagnostic-report').style.display = 'none'; 
-    document.getElementById('reset-btn').style.display = 'none'; 
+    document.getElementById("diagnostic-report").style.display = "none"; 
+    document.getElementById("reset-btn").style.display = "none"; 
     buildInterface();
 });
 
