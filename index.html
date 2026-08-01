@@ -26,7 +26,13 @@ function buildInterface() { renderSlots(); renderPile(); }
 function renderSlots() {
     const slotsContainer = document.getElementById('exam-slots-row'); slotsContainer.innerHTML = '';
     slotStorage.forEach((capId, slotIdx) => {
-        const slotBox = document.createElement('div'); slotBox.style.width = '64px'; slotBox.style.height = '64px'; slotBox.style.borderRadius = '50%'; slotBox.style.display = 'flex'; slotsContainer.appendChild(slotBox);
+        const slotBox = document.createElement('div'); 
+        // FIXED: Restored clean sizing layouts
+        slotBox.style.width = '64px'; 
+        slotBox.style.height = '64px'; 
+        slotBox.style.borderRadius = '50%'; 
+        slotBox.style.display = 'flex'; 
+        slotsContainer.appendChild(slotBox);
         slotBox.style.justifyContent = 'center'; slotBox.style.alignItems = 'center'; slotBox.style.fontSize = '11px'; slotBox.style.fontWeight = 'bold';
         if (capId === null) {
             slotBox.style.border = '2px dashed #30363D'; slotBox.style.backgroundColor = 'transparent'; slotBox.innerHTML = 'Slot ' + slotIdx; slotBox.style.color = '#444C56';
@@ -53,7 +59,19 @@ function renderPile() {
     const pileContainer = document.getElementById('scrambled-source-pile'); pileContainer.innerHTML = '';
     if (sourcePile.length === 0) { pileContainer.innerHTML = "<div style='color:#7EE787; font-weight:bold;'>🎉 ALL COINS PLACED! CLICK THE BUTTON BELOW TO SCORE.</div>"; }
     sourcePile.forEach((capId, pileIdx) => {
-        const coin = document.createElement('div'); coin.style.width = '60px'; coin.style.height = '60px'; coin.style.borderRadius = '50%'; coin.style.backgroundColor = colors[capId]; coin.style.border = '2px solid #21262D'; coin.style.display = 'flex'; coin.style.justifyContent = 'center'; coin.style.alignItems = 'center'; coin.style.cursor = 'grab'; coin.setAttribute('draggable', 'true'); coin.innerHTML = '';
+        const coin = document.createElement('div'); 
+        // FIXED: Restored clean sizing layouts
+        coin.style.width = '60px'; 
+        coin.style.height = '60px'; 
+        coin.style.borderRadius = '50%'; 
+        coin.style.backgroundColor = colors[capId]; 
+        coin.style.border = '2px solid #21262D'; 
+        coin.style.display = 'flex'; 
+        coin.style.justifyContent = 'center'; 
+        coin.style.alignItems = 'center'; 
+        coin.style.cursor = 'grab'; 
+        coin.setAttribute('draggable', 'true'); 
+        coin.innerHTML = '';
         coin.addEventListener('dragstart', () => { activeDraggedCapId = capId; activeSourceOrigin = 'pile'; activeSourceIndex = pileIdx; });
         pileContainer.appendChild(coin);
     });
