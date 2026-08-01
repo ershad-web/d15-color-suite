@@ -1,7 +1,6 @@
 import streamlit as st
 import urllib.parse
 
-# 1. Page Configuration Setup
 st.set_page_config(page_title="Digital D-15 Slot Suite", layout="wide")
 
 st.sidebar.title("🩺 Clinical Control Center")
@@ -16,12 +15,12 @@ st.markdown("---")
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
 st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pile at the bottom and drop them into the empty slots in the top Exam Tray. Line them up to create a smooth color sequence from START to END.*")
 
-# Safely read the frontend layout directly from the separate standalone file
+# Read layout
 with open("index.html", "r", encoding="utf-8") as html_file:
     html_layout_content = html_file.read()
 
-# Encode the HTML text safely so it can be read as a secure URL by st.iframe
+# Clean browser encoding string
 safe_html_url = "data:text/html;charset=utf-8," + urllib.parse.quote(html_layout_content)
 
-# FIXED: Using st.iframe with no deprecated scrolling argument to satisfy the 2026 server rules
+# Purest form of the command required by the new Streamlit server rules
 st.iframe(src=safe_html_url, height=600)
