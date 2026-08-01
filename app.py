@@ -1,5 +1,4 @@
 import streamlit as st
-import streamlit.components.v1 as components
 
 # 1. Page Configuration Setup
 st.set_page_config(page_title="Digital D-15 Slot Suite", layout="wide")
@@ -20,4 +19,5 @@ st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pi
 with open("index.html", "r", encoding="utf-8") as html_file:
     html_layout_content = html_file.read()
 
-components.html(html_layout_content, height=600, scrolling=True)
+# FIXED: Replaced the deprecated html component with st.iframe to satisfy the server requirements
+st.iframe(src="data:text/html;charset=utf-8," + html_layout_content, height=600, scrolling=True)
