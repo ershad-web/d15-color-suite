@@ -13,15 +13,15 @@ st.subheader("Medical Validation & Diagnostic Software Prototype")
 st.markdown("---")
 
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
-st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pile at the bottom and drop them into the empty slots in the top Exam Tray. Line them up to create a smooth color sequence from START to END. (If dragging feels restricted by your browser, you can also click a coin and click a slot).*")
+st.markdown("**Instructions:** *Arrange the color coins from the source pile at the bottom into the empty slots in the top Exam Tray. Line them up to create a smooth sequence from START to END. **Click a color coin, then click an empty slot to move it.***")
 
-# Read the HTML layout file safely
+# Read the HTML layout file safely from your repository
 try:
     with open("index.html", "r", encoding="utf-8") as html_file:
         html_layout_content = html_file.read()
     
-    # Use Streamlit's official HTML component to bypass iframe security blocks
+    # Render with custom engine to allow smooth click-and-move mechanics
     components.html(html_layout_content, height=650, scrolling=True)
 
 except FileNotFoundError:
-    st.error("❌ Error: 'index.html' file not found. Please make sure index.html is in the same GitHub repository folder as your python script.")
+    st.error("❌ Error: 'index.html' file not found. Please verify index.html is committed in the same GitHub repository folder as your python script.")
