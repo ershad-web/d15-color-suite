@@ -1,5 +1,5 @@
 import streamlit as st
-import urllib.parse
+import streamlit.components.v1 as components
 
 st.set_page_config(page_title="Digital D-15 Slot Suite", layout="wide")
 
@@ -13,14 +13,15 @@ st.subheader("Medical Validation & Diagnostic Software Prototype")
 st.markdown("---")
 
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
-st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pile at the bottom and drop them into the empty slots in the top Exam Tray. Line them up to create a smooth color sequence from START to END.*")
+st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pile at the bottom and drop them into the empty slots in the top Exam Tray. Line them up to create a smooth color sequence from START to END. (If dragging feels restricted by your browser, you can also click a coin and click a slot).*")
 
-# Read layout
-with open("index.html", "r", encoding="utf-8") as html_file:
-    html_layout_content = html_file.read()
+# Read the HTML layout file safely
+try:
+    with open("index.html", "r", encoding="utf-8") as html_file:
+        html_layout_content = html_file.read()
+    
+    # Use Streamlit's official HTML component to bypass iframe security blocks
+    components.html(html_layout_content, height=650, scrolling=True)
 
-# Clean browser encoding string
-safe_html_url = "data:text/html;charset=utf-8," + urllib.parse.quote(html_layout_content)
-
-# Purest form of the command required by the new Streamlit server rules
-st.iframe(src=safe_html_url, height=600)
+except FileNotFoundError:
+    st.error("❌ Error: 'index.html' file not found. Please make sure index.html is in the same GitHub repository folder as your python script.")
