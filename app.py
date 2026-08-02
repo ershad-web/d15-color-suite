@@ -38,21 +38,56 @@ st.subheader("Medical Validation & Diagnostic Software Prototype")
 st.markdown("---")
 
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
-st.markdown("**Instructions:** *Click directly on a colored coin in Step 2 to select it. Then, click directly on an empty gray slot in Step 1 to move it there. To remove a coin from the tray, click it directly.*")
+st.markdown("**Instructions:** *Click directly on a colored coin in the source pile to select it. Then, click directly on an empty slot or container circle in the exam tray to move it there. To remove a coin from the tray, click it directly.*")
 st.write("")
+
+# 🎨 Injecting Advanced CSS Injection Matrix to merge Python Buttons with HTML Shapes
+st.markdown("""
+<style>
+/* Targets the layout grid blocks containing our test coins */
+div[data-testid="stHorizontalBlock"] div.stButton {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto !important;
+}
+
+/* Forces the native Streamlit button to stretch and fit exactly over our circular design */
+div[data-testid="stHorizontalBlock"] div.stButton > button {
+    border-radius: 50% !important;
+    width: 66px !important;
+    height: 66px !important;
+    padding: 0px !important;
+    margin: 0px !important;
+    background-color: transparent !important;
+    color: transparent !important;
+    border: none !important;
+    position: absolute;
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: none !important;
+}
+
+/* Creates a gentle hover border matrix state so the patient knows they are hovering over a coin */
+div[data-testid="stHorizontalBlock"] div.stButton > button:hover {
+    border: 3px solid #58A6FF !important;
+    background-color: rgba(88, 166, 255, 0.15) !important;
+}
+</style>
+""", unsafe_allow_html=True)
 
 # Helper formatting function to create circular custom metric cap divs safely via markup
 def render_cap_circle(cap_index, label="", is_selected=False):
     color_hex = ALL_COLORS[cap_index]
     text_color = "#000000" if cap_index == 13 else "#FFFFFF"
     border_style = "4px solid #58A6FF" if is_selected else "2px solid #21262D"
-    glow_style = "box-shadow: 0 0 15px #58A6FF, inset 0 0 10px rgba(0,0,0,0.5);" if is_selected else "box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.3);"
+    glow_style = "box-shadow: 0 0 18px #58A6FF, inset 0 0 12px rgba(0,0,0,0.6);" if is_selected else "box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);"
     
     return f"""
     <div style="
         background-color: {color_hex}; 
-        width: 65px; 
-        height: 65px; 
+        width: 64px; 
+        height: 64px; 
         border-radius: 50%; 
         display: flex; 
         align-items: center; 
@@ -64,86 +99,65 @@ def render_cap_circle(cap_index, label="", is_selected=False):
         {glow_style}
         border: {border_style};
         margin: auto;
-        cursor: pointer;
+        position: relative;
     ">{label}</div>
     """
 
 # 📥 STEP 1: EXAM TRAY VIEW
 st.markdown("#### 📥 STEP 1: EXAM TRAY (Click on an empty slot to place your selected coin)")
 
-# We wrap buttons in an invisible container and layer them over custom CSS circles
-st.markdown("""
-<style>
-div.stButton > button {
-    border-radius: 50% !important;
-    width: 65px !important;
-    height: 65px !important;
-    padding: 0px !important;
-    margin: auto !important;
-    display: block !important;
-    background-color: transparent !important;
-    border: none !important;
-    color: transparent !important;
-}
-div.stButton > button:hover {
-    background-color: rgba(88, 166, 255, 0.1) !important;
-    border: 2px dashed #58A6FF !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
-tray_cols = st.columns(14)
-
-for idx, cap in enumerate(st.session_state.exam_tray):
-    with tray_cols[idx]:
-        if cap == 0:
-            st.markdown(render_cap_circle(0, "START"), unsafe_allow_html=True)
-            st.caption("<center>START</center>", unsafe_allow_html=True)
-        elif cap == 13:
-            st.markdown(render_cap_circle(13, "END"), unsafe_allow_html=True)
-            st.caption("<center>END</center>", unsafe_allow_html=True)
-        elif cap is not None:
-            # Render the coin. If clicked, it instantly removes it back to the source pile
-            st.markdown(render_cap_circle(cap), unsafe_allow_html=True)
-            if st.button("", key=f"rm_{idx}"):
-                st.session_state.scrambled_pile.append(cap)
-                st.session_state.exam_tray[idx] = None
-                st.rerun()
-        else:
-            # Render empty slot target circle
-            st.markdown(
-                '<div style="width:65px; height:65px; border-radius:50%; border:2px dashed #444C56; margin:auto; background: transparent;"></div>', 
-                unsafe_allow_html=True
-            )
-            # Hover action overlay button to catch the move trigger click
-            if st.button("", key=f"slot_{idx}"):
-                if st.session_state.selected_coin is not None:
-                    coin_to_place = st.session_state.selected_coin
-                    st.session_state.exam_tray[idx] = coin_to_place
-                    st.session_state.scrambled_pile.remove(coin_to_place)
-                    st.session_state.selected_coin = None
+# Main structural container background frame
+with st.container(border=True):
+    tray_cols = st.columns(14)
+    for idx, cap in enumerate(st.session_state.exam_tray):
+        with tray_cols[idx]:
+            if cap == 0:
+                st.markdown(render_cap_circle(0, "START"), unsafe_allow_html=True)
+                st.caption("<center>START</center>", unsafe_allow_html=True)
+            elif cap == 13:
+                st.markdown(render_cap_circle(13, "END"), unsafe_allow_html=True)
+                st.caption("<center>END</center>", unsafe_allow_html=True)
+            elif cap is not None:
+                # Render stacked container framework components
+                st.markdown(render_cap_circle(cap), unsafe_allow_html=True)
+                # The button sits directly over top of the coin, handling clicks perfectly
+                if st.button("", key=f"rm_{idx}"):
+                    st.session_state.scrambled_pile.append(cap)
+                    st.session_state.exam_tray[idx] = None
                     st.rerun()
+            else:
+                # Render blank slot wireframe target circles
+                st.markdown(
+                    '<div style="width:64px; height:64px; border-radius:50%; border:2px dashed #444C56; margin:auto; background: transparent; position: relative;"></div>', 
+                    unsafe_allow_html=True
+                )
+                if st.button("", key=f"slot_{idx}"):
+                    if st.session_state.selected_coin is not None:
+                        coin_to_place = st.session_state.selected_coin
+                        st.session_state.exam_tray[idx] = coin_to_place
+                        st.session_state.scrambled_pile.remove(coin_to_place)
+                        st.session_state.selected_coin = None
+                        st.rerun()
 
-st.markdown("---")
+st.write("")
 
 # 🎨 STEP 2: SOURCE PILE VIEW
 st.markdown("#### 🎨 STEP 2: SOURCE PILE (Click directly on a color coin to select it)")
 
-if len(st.session_state.scrambled_pile) == 0:
-    st.success("🎉 ALL COINS PLACED! CLICK THE 'PROBE DIAGNOSTIC RESULTS' BUTTON BELOW TO SCORE THE ASSESSMENT.")
-else:
-    pile_cols = st.columns(14)
-    for p_idx, cap in enumerate(st.session_state.scrambled_pile):
-        # Prevent layout running past grid row column array boundaries
-        if p_idx < 14:
-            with pile_cols[p_idx]:
-                is_active = (st.session_state.selected_coin == cap)
-                st.markdown(render_cap_circle(cap, is_selected=is_active), unsafe_allow_html=True)
-                
-                # Clicking the coin sets it as the active item selection
-                if st.button("", key=f"sel_{cap}"):
-                    st.session_state.selected_coin = cap
-                    st.rerun()
+with st.container(border=True):
+    if len(st.session_state.scrambled_pile) == 0:
+        st.success("🎉 ALL COINS PLACED! CLICK THE 'PROBE DIAGNOSTIC RESULTS' BUTTON BELOW TO SCORE THE ASSESSMENT.")
+    else:
+        pile_cols = st.columns(14)
+        for p_idx, cap in enumerate(st.session_state.scrambled_pile):
+            if p_idx < 14:
+                with pile_cols[p_idx]:
+                    is_active = (st.session_state.selected_coin == cap)
+                    st.markdown(render_cap_circle(cap, is_selected=is_active), unsafe_allow_html=True)
+                    
+                    if st.button("", key=f"sel_{cap}"):
+                        st.session_state.selected_coin = cap
+                        st.rerun()
 
 st.markdown("---")
 
