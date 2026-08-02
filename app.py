@@ -38,40 +38,44 @@ st.subheader("Medical Validation & Diagnostic Software Prototype")
 st.markdown("---")
 
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
-st.markdown("**Instructions:** *Click directly on a colored coin in the source pile to select it. Then, click directly on an empty slot or container circle in the exam tray to move it there. To remove a coin from the tray, click it directly.*")
+st.markdown("**Instructions:** *Click directly on a color coin in the source pile to select it. Once selected, it will glow brightly inside. Then, click directly on any empty dashed circle in the exam tray to place it there. To remove a coin from the tray, click it directly.*")
 st.write("")
 
-# 🎨 Injecting Advanced CSS Injection Matrix to merge Python Buttons with HTML Shapes
+# 🎨 Injecting precise structural CSS to map button actions directly to the circle graphic dimensions
 st.markdown("""
 <style>
-/* Targets the layout grid blocks containing our test coins */
+/* Centering target blocks */
 div[data-testid="stHorizontalBlock"] div.stButton {
     display: flex;
     justify-content: center;
     align-items: center;
     margin: auto !important;
+    position: relative;
+    width: 64px !important;
+    height: 64px !important;
 }
 
-/* Forces the native Streamlit button to stretch and fit exactly over our circular design */
+/* Expands the hidden button layout layer to fit exactly onto the circular boundaries */
 div[data-testid="stHorizontalBlock"] div.stButton > button {
     border-radius: 50% !important;
-    width: 66px !important;
-    height: 66px !important;
+    width: 64px !important;
+    height: 64px !important;
     padding: 0px !important;
     margin: 0px !important;
     background-color: transparent !important;
     color: transparent !important;
     border: none !important;
     position: absolute;
+    top: 0;
+    left: 0;
     z-index: 10;
     cursor: pointer;
     box-shadow: none !important;
 }
 
-/* Creates a gentle hover border matrix state so the patient knows they are hovering over a coin */
+/* Light background tint reaction when hovering anywhere on a cap */
 div[data-testid="stHorizontalBlock"] div.stButton > button:hover {
-    border: 3px solid #58A6FF !important;
-    background-color: rgba(88, 166, 255, 0.15) !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -80,9 +84,15 @@ div[data-testid="stHorizontalBlock"] div.stButton > button:hover {
 def render_cap_circle(cap_index, label="", is_selected=False):
     color_hex = ALL_COLORS[cap_index]
     text_color = "#000000" if cap_index == 13 else "#FFFFFF"
-    border_style = "4px solid #58A6FF" if is_selected else "2px solid #21262D"
-    glow_style = "box-shadow: 0 0 18px #58A6FF, inset 0 0 12px rgba(0,0,0,0.6);" if is_selected else "box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);"
     
+    # FIXED: Selection does not change outer elements or spacing. It alters internal shading and typography properties.
+    if is_selected:
+        glow_style = "box-shadow: inset 0 0 20px #FFFFFF, 0 4px 8px rgba(0,0,0,0.5);"
+        inner_text = "SEL" if not label else label
+    else:
+        glow_style = "box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.3);"
+        inner_text = label
+
     return f"""
     <div style="
         background-color: {color_hex}; 
@@ -97,16 +107,15 @@ def render_cap_circle(cap_index, label="", is_selected=False):
         font-size: 11px;
         font-family: sans-serif;
         {glow_style}
-        border: {border_style};
+        border: 2px solid #21262D;
         margin: auto;
-        position: relative;
-    ">{label}</div>
+        box-sizing: border-box;
+    ">{inner_text}</div>
     """
 
 # 📥 STEP 1: EXAM TRAY VIEW
 st.markdown("#### 📥 STEP 1: EXAM TRAY (Click on an empty slot to place your selected coin)")
 
-# Main structural container background frame
 with st.container(border=True):
     tray_cols = st.columns(14)
     for idx, cap in enumerate(st.session_state.exam_tray):
@@ -118,17 +127,16 @@ with st.container(border=True):
                 st.markdown(render_cap_circle(13, "END"), unsafe_allow_html=True)
                 st.caption("<center>END</center>", unsafe_allow_html=True)
             elif cap is not None:
-                # Render stacked container framework components
+                # Render positioned coin element inside container blocks
                 st.markdown(render_cap_circle(cap), unsafe_allow_html=True)
-                # The button sits directly over top of the coin, handling clicks perfectly
                 if st.button("", key=f"rm_{idx}"):
                     st.session_state.scrambled_pile.append(cap)
                     st.session_state.exam_tray[idx] = None
                     st.rerun()
             else:
-                # Render blank slot wireframe target circles
+                # Render blank slot wireframe circles
                 st.markdown(
-                    '<div style="width:64px; height:64px; border-radius:50%; border:2px dashed #444C56; margin:auto; background: transparent; position: relative;"></div>', 
+                    '<div style="width:64px; height:64px; border-radius:50%; border:2px dashed #444C56; margin:auto; background: transparent; box-sizing: border-box;"></div>', 
                     unsafe_allow_html=True
                 )
                 if st.button("", key=f"slot_{idx}"):
