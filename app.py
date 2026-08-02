@@ -34,17 +34,20 @@ risk = st.sidebar.selectbox("Known Retinal Risk Factor", ["Type 2 Diabetes", "Hy
 
 # Main Application Headers
 st.title("Digital D-15 Color Arrangement Assessment Suite")
-st.subheader("Medical Validation & Diagnostic Software Prototype (Pure Python Engine)")
+st.subheader("Medical Validation & Diagnostic Software Prototype")
 st.markdown("---")
 
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
-st.markdown("**Instructions:** *Click a colored coin from Step 2 to select it, then click any empty gray slot in Step 1 to place it. To return a placed coin to the source pile, click it again.*")
+st.markdown("**Instructions:** *Click directly on a colored coin in Step 2 to select it. Then, click directly on an empty gray slot in Step 1 to move it there. To remove a coin from the tray, click it directly.*")
 st.write("")
 
 # Helper formatting function to create circular custom metric cap divs safely via markup
-def render_cap_circle(cap_index, label=""):
+def render_cap_circle(cap_index, label="", is_selected=False):
     color_hex = ALL_COLORS[cap_index]
     text_color = "#000000" if cap_index == 13 else "#FFFFFF"
+    border_style = "4px solid #58A6FF" if is_selected else "2px solid #21262D"
+    glow_style = "box-shadow: 0 0 15px #58A6FF, inset 0 0 10px rgba(0,0,0,0.5);" if is_selected else "box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.3);"
+    
     return f"""
     <div style="
         background-color: {color_hex}; 
@@ -58,14 +61,37 @@ def render_cap_circle(cap_index, label=""):
         font-weight: bold; 
         font-size: 11px;
         font-family: sans-serif;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.3);
-        border: 2px solid #21262D;
+        {glow_style}
+        border: {border_style};
         margin: auto;
+        cursor: pointer;
     ">{label}</div>
     """
 
 # 📥 STEP 1: EXAM TRAY VIEW
-st.markdown("#### 📥 STEP 1: EXAM TRAY (Place Coins Here)")
+st.markdown("#### 📥 STEP 1: EXAM TRAY (Click on an empty slot to place your selected coin)")
+
+# We wrap buttons in an invisible container and layer them over custom CSS circles
+st.markdown("""
+<style>
+div.stButton > button {
+    border-radius: 50% !important;
+    width: 65px !important;
+    height: 65px !important;
+    padding: 0px !important;
+    margin: auto !important;
+    display: block !important;
+    background-color: transparent !important;
+    border: none !important;
+    color: transparent !important;
+}
+div.stButton > button:hover {
+    background-color: rgba(88, 166, 255, 0.1) !important;
+    border: 2px dashed #58A6FF !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 tray_cols = st.columns(14)
 
 for idx, cap in enumerate(st.session_state.exam_tray):
@@ -77,19 +103,20 @@ for idx, cap in enumerate(st.session_state.exam_tray):
             st.markdown(render_cap_circle(13, "END"), unsafe_allow_html=True)
             st.caption("<center>END</center>", unsafe_allow_html=True)
         elif cap is not None:
-            # Placed adjustable coin layout wrapper logic
+            # Render the coin. If clicked, it instantly removes it back to the source pile
             st.markdown(render_cap_circle(cap), unsafe_allow_html=True)
-            if st.button("❌ Remove", key=f"rm_{idx}"):
+            if st.button("", key=f"rm_{idx}"):
                 st.session_state.scrambled_pile.append(cap)
                 st.session_state.exam_tray[idx] = None
                 st.rerun()
         else:
-            # Empty landing destination targets
+            # Render empty slot target circle
             st.markdown(
                 '<div style="width:65px; height:65px; border-radius:50%; border:2px dashed #444C56; margin:auto; background: transparent;"></div>', 
                 unsafe_allow_html=True
             )
-            if st.button("Place Here", key=f"slot_{idx}"):
+            # Hover action overlay button to catch the move trigger click
+            if st.button("", key=f"slot_{idx}"):
                 if st.session_state.selected_coin is not None:
                     coin_to_place = st.session_state.selected_coin
                     st.session_state.exam_tray[idx] = coin_to_place
@@ -100,27 +127,23 @@ for idx, cap in enumerate(st.session_state.exam_tray):
 st.markdown("---")
 
 # 🎨 STEP 2: SOURCE PILE VIEW
-st.markdown("#### 🎨 STEP 2: SOURCE PILE (Select Active Coins From Here)")
+st.markdown("#### 🎨 STEP 2: SOURCE PILE (Click directly on a color coin to select it)")
 
 if len(st.session_state.scrambled_pile) == 0:
     st.success("🎉 ALL COINS PLACED! CLICK THE 'PROBE DIAGNOSTIC RESULTS' BUTTON BELOW TO SCORE THE ASSESSMENT.")
 else:
-    # Render available caps dynamically in columns
-    pile_cols = st.columns(max(len(st.session_state.scrambled_pile), 1))
+    pile_cols = st.columns(14)
     for p_idx, cap in enumerate(st.session_state.scrambled_pile):
-        with pile_cols[p_idx]:
-            # Highlight selected coin with an exterior layout border matrix outline
-            if st.session_state.selected_coin == cap:
-                st.markdown(
-                    f'<div style="border: 3px solid #58A6FF; border-radius: 50%; padding: 2px; width:73px; margin:auto;">{render_cap_circle(cap)}</div>', 
-                    unsafe_allow_html=True
-                )
-            else:
-                st.markdown(render_cap_circle(cap), unsafe_allow_html=True)
+        # Prevent layout running past grid row column array boundaries
+        if p_idx < 14:
+            with pile_cols[p_idx]:
+                is_active = (st.session_state.selected_coin == cap)
+                st.markdown(render_cap_circle(cap, is_selected=is_active), unsafe_allow_html=True)
                 
-            if st.button("Select", key=f"sel_{cap}"):
-                st.session_state.selected_coin = cap
-                st.rerun()
+                # Clicking the coin sets it as the active item selection
+                if st.button("", key=f"sel_{cap}"):
+                    st.session_state.selected_coin = cap
+                    st.rerun()
 
 st.markdown("---")
 
@@ -128,11 +151,10 @@ st.markdown("---")
 btn_col1, btn_col2 = st.columns(2)
 
 with btn_col1:
-    if st.button("🩺 PROBE DIAGNOSTIC RESULTS", use_container_width=True):
+    if st.button("🩺 PROBE DIAGNOSTIC RESULTS", use_container_width=True, type="primary"):
         if None in st.session_state.exam_tray:
             st.error("⚠️ CANNOT CALIBRATE: Please place all 12 color coins into the tray before running diagnosis.")
         else:
-            # Execute medical sequence jump analysis loop metrics
             total_error = 0
             for i in range(len(st.session_state.exam_tray) - 1):
                 diff = abs(st.session_state.exam_tray[i] - st.session_state.exam_tray[i+1])
