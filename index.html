@@ -31,9 +31,7 @@
 
 <script>
 const colors = ["#0D1B3E", "#06328A", "#0066A6", "#0D8C80", "#1A9955", "#4CB333", "#99BF26", "#CFAD1A", "#E6801E", "#EB5226", "#E02E59", "#BF1A8C", "#2E0D8C", "#F2F4F7"];
-
-// FIXED: Scrambled arrangement indices pre-filled so the framework boots up!
-const originalScrambledPile = [5, 1, 9, 3, 11, 2, 8, 4, 10, 6, 12, 7];
+const originalScrambledPile =;
 
 let slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13];
 let sourcePile = [...originalScrambledPile];
@@ -56,8 +54,8 @@ function renderSlots() {
         
         slotBox.style.width = "64px"; slotBox.style.height = "64px"; slotBox.style.minWidth = "64px"; slotBox.style.minHeight = "64px";
         slotBox.style.maxWidth = "64px"; slotBox.style.maxHeight = "64px"; slotBox.style.borderRadius = "50%"; slotBox.style.display = "flex";
-        slotBox.style.justifyContent = "center"; slotBox.style.alignItems = "center"; slotBox.style.fontSize = "10px"; slotBox.style.fontWeight = "bold"; slotBox.style.boxSizing = "border-box";
         slotsContainer.appendChild(slotBox);
+        slotBox.style.justifyContent = "center"; slotBox.style.alignItems = "center"; slotBox.style.fontSize = "10px"; slotBox.style.fontWeight = "bold"; slotBox.style.boxSizing = "border-box";
         
         if (capId === null) {
             slotBox.style.border = "2px dashed #30363D"; slotBox.style.backgroundColor = "transparent"; slotBox.innerHTML = "Slot " + slotIdx; slotBox.style.color = "#444C56"; slotBox.style.cursor = "pointer";
@@ -127,4 +125,8 @@ document.getElementById("score-btn").addEventListener("click", (e) => {
     else { alertCard.innerText = "⚠️ ATTENTION: Cross-axis sequence jumps detected (" + totalError + " total configuration errors)."; alertCard.style.backgroundColor = "#3B2E1E"; alertCard.style.color = "#E3B341"; alertCard.style.border = "1px solid #E3B341"; }
 });
 
+// THIS IS WHERE THE CODE PIECE SITS SAFELY INSIDE THE APP LISTENERS:
 document.getElementById("reset-btn").addEventListener("click", (e) => {
+    e.stopPropagation(); 
+    slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13]; 
+    sourcePile = [...originalScrambledPile];
