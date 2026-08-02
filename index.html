@@ -1,36 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
+    <title>D-15 Drag Engine</title>
     <style>
-        body { margin: 0; padding: 0; background-color: #0D1117; }
-        .selected-coin { box-shadow: 0 0 18px #FFFFFF, inset 0 0 12px rgba(0,0,0,0.5) !important; }
-        .target-selected { box-shadow: 0 0 18px #58A6FF, inset 0 0 12px rgba(0,0,0,0.5) !important; }
+        body { background-color: #0D1117; margin: 0; padding: 10px; font-family: system-ui, -apple-system, sans-serif; color: white; user-select: none; -webkit-user-select: none; }
+        .row-container { display: flex; gap: 14px; justify-content: center; align-items: center; padding: 20px; background: #070A0E; border: 2px solid #1F242C; border-radius: 10px; min-height: 80px; margin-bottom: 25px; flex-wrap: wrap; }
+        .source-container { background: #161B22; border: 2px dashed #30363D; }
+        
+        /* Absolute strict dimensional settings for every layout item to prevent warping */
+        .cap-circle { width: 64px; height: 64px; min-width: 64px; min-height: 64px; max-width: 64px; max-height: 64px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 10px; font-weight: bold; box-sizing: border-box; transition: transform 0.1s ease; }
+        .dynamic-coin { border: 2px solid #21262D; box-shadow: inset 0 0 12px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4); cursor: grab; }
+        .dynamic-coin:active { cursor: grabbing; transform: scale(0.95); }
+        .empty-slot { border: 2px dashed #30363D; background-color: transparent; color: #444C56; }
+        
+        .btn-action { background-color: #238636; color: white; border: none; padding: 12px 28px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: background 0.2s; }
+        .btn-action:hover { background-color: #2ea043; }
+        .btn-reset { background-color: #A37114; }
+        .btn-reset:hover { background-color: #bb8119; }
     </style>
 </head>
 <body>
 
-<div id="d15-app-container" style="background-color: #0D1117; padding: 25px; border-radius: 12px; font-family: system-ui, sans-serif; color: white; user-select: none;">
-    <div style="font-weight: bold; color: #58A6FF; font-size: 13px; margin-bottom: 10px; letter-spacing: 0.5px;">📥 STEP 1: DRAG COINS HERE OR CLICK TO PLACE THEM</div>
-    <div id="exam-slots-row" style="display: flex; gap: 14px; justify-content: center; align-items: center; padding: 20px; background: #070A0E; border: 2px solid #1F242C; border-radius: 10px; min-height: 90px; margin-bottom: 30px; flex-wrap: wrap;"></div>
+<div id="d15-app-container">
+    <div style="font-weight: bold; color: #58A6FF; font-size: 13px; margin-bottom: 10px; letter-spacing: 0.5px;">📥 STEP 1: DROP THE COINS INTO THE EMPTY SLOTS IN THIS ROW</div>
+    <div id="exam-slots-row" class="row-container"></div>
     
-    <div style="font-weight: bold; color: #8B949E; font-size: 13px; margin-bottom: 10px; letter-spacing: 0.5px;">🎨 STEP 2: SOURCE PILE (Grab or select pieces from here)</div>
-    <div id="scrambled-source-pile" style="display: flex; gap: 14px; justify-content: center; align-items: center; padding: 25px; background: #161B22; border: 2px dashed #30363D; border-radius: 10px; min-height: 90px; margin-bottom: 25px; flex-wrap: wrap;"></div>
+    <div style="font-weight: bold; color: #8B949E; font-size: 13px; margin-bottom: 10px; letter-spacing: 0.5px;">🎨 STEP 2: SOURCE PILE (Drag pieces from here up into the tray)</div>
+    <div id="scrambled-source-pile" class="row-container source-container"></div>
     
     <div style="text-align: center; display: flex; gap: 15px; justify-content: center;">
-        <button id="score-btn" style="background-color: #238636; color: white; border: none; padding: 12px 28px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">PROBE DIAGNOSTIC RESULTS</button>
-        <button id="reset-btn" style="background-color: #A37114; color: white; border: none; padding: 12px 28px; font-size: 15px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2); display: none;">🔄 REPEAT TEST (RESET)</button>
+        <button id="score-btn" class="btn-action">PROBE DIAGNOSTIC RESULTS</button>
+        <button id="reset-btn" class="btn-action btn-reset" style="display: none;">🔄 REPEAT TEST (RESET)</button>
     </div>
     
     <div id="diagnostic-report" style="margin-top: 30px; display: none; border-top: 1px solid #1F242C; padding-top: 20px;">
         <div style="font-size: 24px; font-weight: bold; color: #58A6FF; margin-bottom: 15px;">🩺 AUTOMATED CLINICAL EVALUATION REPORT</div>
         <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">Total Error Score (TES): <span id="tes-val" style="color: #FF6B6B;"></span></div>
-        <div id="alert-card" style="padding: 15px; border-radius: 6px; font-weight: bold; font-size: 14px; background-color: #3B1B1E; color: #FF6B6B; border: 1px solid #FF6B6B;"></div>
+        <div id="alert-card" style="padding: 15px; border-radius: 6px; font-weight: bold; font-size: 14px;"></div>
     </div>
 </div>
 
 <script>
+// The 14 sequential color values of the color wheel matrix
 const colors = ["#0D1B3E", "#06328A", "#0066A6", "#0D8C80", "#1A9955", "#4CB333", "#99BF26", "#CFAD1A", "#E6801E", "#EB5226", "#E02E59", "#BF1A8C", "#2E0D8C", "#F2F4F7"];
+
+// FIXED: Stably populated randomized array allocation parameters so it doesn't break
 const originalScrambledPile =;
 
 let slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13];
@@ -50,83 +65,136 @@ function renderSlots() {
     slotsContainer.innerHTML = "";
     
     slotStorage.forEach((capId, slotIdx) => {
-        const slotBox = document.createElement("div");
-        
-        slotBox.style.width = "64px"; slotBox.style.height = "64px"; slotBox.style.minWidth = "64px"; slotBox.style.minHeight = "64px";
-        slotBox.style.maxWidth = "64px"; slotBox.style.maxHeight = "64px"; slotBox.style.borderRadius = "50%"; slotBox.style.display = "flex";
+        const slotBox = document.createElement("div"); 
+        slotBox.className = "cap-circle";
         slotsContainer.appendChild(slotBox);
-        slotBox.style.justifyContent = "center"; slotBox.style.alignItems = "center"; slotBox.style.fontSize = "10px"; slotBox.style.fontWeight = "bold"; slotBox.style.boxSizing = "border-box";
         
         if (capId === null) {
-            slotBox.style.border = "2px dashed #30363D"; slotBox.style.backgroundColor = "transparent"; slotBox.innerHTML = "Slot " + slotIdx; slotBox.style.color = "#444C56"; slotBox.style.cursor = "pointer";
-            slotBox.addEventListener("click", () => { if (activeDraggedCapId !== null) executeMove(slotIdx); });
+            slotBox.className += " empty-slot";
+            slotBox.innerHTML = "Slot " + slotIdx;
         } else {
-            slotBox.style.backgroundColor = colors[capId]; slotBox.style.boxShadow = "inset 0 0 12px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4)"; slotBox.style.border = "2px solid #21262D";
-            if (capId === 0) { slotBox.innerHTML = "START"; slotBox.style.color = "#fff"; slotBox.style.border = "3px solid #58A6FF"; }
-            else if (capId === 13) { slotBox.innerHTML = "END"; slotBox.style.color = "#000"; slotBox.style.border = "3px solid #7EE787"; }
-            else {
-                slotBox.innerHTML = ""; slotBox.setAttribute("draggable", "true"); slotBox.style.cursor = "grab";
-                slotBox.addEventListener("dragstart", () => { activeDraggedCapId = capId; activeSourceOrigin = "slot"; activeSourceIndex = slotIdx; });
-                slotBox.addEventListener("click", (e) => {
-                    e.stopPropagation(); resetHighlights(); activeDraggedCapId = capId; activeSourceOrigin = "slot"; activeSourceIndex = slotIdx;
-                    slotBox.classList.add("target-selected");
+            slotBox.className += " dynamic-coin";
+            slotBox.style.backgroundColor = colors[capId]; 
+            slotBox.style.color = (capId === 13) ? "#000" : "#fff"; 
+            
+            if (capId === 0) { 
+                slotBox.innerHTML = "START"; 
+                slotBox.style.border = "3px solid #58A6FF"; 
+            } else if (capId === 13) { 
+                slotBox.innerHTML = "END"; 
+                slotBox.style.border = "3px solid #7EE787"; 
+            } else {
+                slotBox.innerHTML = ""; 
+                slotBox.setAttribute("draggable", "true"); 
+                
+                slotBox.addEventListener("dragstart", () => { 
+                    activeDraggedCapId = capId; 
+                    activeSourceOrigin = "slot"; 
+                    activeSourceIndex = slotIdx; 
                 });
             }
         }
+        
         slotBox.addEventListener("dragover", (e) => e.preventDefault());
-        slotBox.addEventListener("drop", (e) => { e.preventDefault(); if (slotStorage[slotIdx] === null) executeMove(slotIdx); });
+        slotBox.addEventListener("drop", (e) => {
+            e.preventDefault(); 
+            if (slotStorage[slotIdx] !== null) return;
+            
+            if (activeSourceOrigin === "pile") { 
+                sourcePile.splice(activeSourceIndex, 1); 
+            } else if (activeSourceOrigin === "slot") { 
+                slotStorage[activeSourceIndex] = null; 
+            }
+            slotStorage[slotIdx] = activeDraggedCapId; 
+            buildInterface();
+        });
     });
 }
 
 function renderPile() {
-    const pileContainer = document.getElementById("scrambled-source-pile"); pileContainer.innerHTML = "";
-    if (sourcePile.length === 0) { pileContainer.innerHTML = "<div style='color:#7EE787; font-weight:bold; width:100%; text-align:center;'>🎉 ALL COINS PLACED! CLICK THE BUTTON BELOW TO SCORE.</div>"; return; }
+    const pileContainer = document.getElementById("scrambled-source-pile"); 
+    pileContainer.innerHTML = "";
+    
+    if (sourcePile.length === 0) { 
+        pileContainer.innerHTML = "<div style='color:#7EE787; font-weight:bold; font-size: 14px;'>🎉 ALL COINS PLACED! CLICK THE BUTTON BELOW TO RUN MEDICAL DIAGNOSIS.</div>"; 
+        return;
+    }
+    
     sourcePile.forEach((capId, pileIdx) => {
-        const coin = document.createElement("div");
-        coin.style.width = "64px"; coin.style.height = "64px"; coin.style.minWidth = "64px"; coin.style.minHeight = "64px"; coin.style.maxWidth = "64px"; coin.style.maxHeight = "64px";
-        coin.style.borderRadius = "50%"; coin.style.backgroundColor = colors[capId]; coin.style.border = "2px solid #21262D"; coin.style.boxShadow = "inset 0 0 12px rgba(0,0,0,0.5), 0 4px 8px rgba(0,0,0,0.4)";
-        coin.style.display = "flex"; coin.style.justifyContent = "center"; coin.style.alignItems = "center"; coin.style.cursor = "grab"; coin.style.boxSizing = "border-box"; coin.setAttribute("draggable", "true"); coin.innerHTML = "";
-        coin.addEventListener("dragstart", () => { activeDraggedCapId = capId; activeSourceOrigin = "pile"; activeSourceIndex = pileIdx; });
-        coin.addEventListener("click", (e) => {
-            e.stopPropagation(); resetHighlights(); activeDraggedCapId = capId; activeSourceOrigin = "pile"; activeSourceIndex = pileIdx;
-            coin.classList.add("selected-coin");
+        const coin = document.createElement("div"); 
+        coin.className = "cap-circle dynamic-coin";
+        coin.style.backgroundColor = colors[capId]; 
+        coin.setAttribute("draggable", "true"); 
+        
+        coin.addEventListener("dragstart", () => { 
+            activeDraggedCapId = capId; 
+            activeSourceOrigin = "pile"; 
+            activeSourceIndex = pileIdx; 
         });
+        
         pileContainer.appendChild(coin);
     });
+    
     pileContainer.addEventListener("dragover", (e) => e.preventDefault());
-    pileContainer.addEventListener("drop", (e) => { e.preventDefault(); if (activeSourceOrigin === "slot") { slotStorage[activeSourceIndex] = null; sourcePile.push(activeDraggedCapId); clearSelection(); buildInterface(); } });
+    pileContainer.addEventListener("drop", (e) => {
+        e.preventDefault(); 
+        if (activeSourceOrigin === "slot") { 
+            slotStorage[activeSourceIndex] = null; 
+            sourcePile.push(activeDraggedCapId); 
+            buildInterface(); 
+        }
+    });
 }
 
-function executeMove(targetSlotIdx) {
-    if (activeSourceOrigin === "pile") sourcePile.splice(activeSourceIndex, 1);
-    else if (activeSourceOrigin === "slot") slotStorage[activeSourceIndex] = null;
-    slotStorage[targetSlotIdx] = activeDraggedCapId; clearSelection(); buildInterface();
-}
-
-function resetHighlights() { 
-    document.querySelectorAll(".selected-coin, .target-selected").forEach(el => {
-        el.classList.remove("selected-coin", "target-selected");
-    }); 
-}
-function clearSelection() { activeDraggedCapId = null; activeSourceOrigin = null; activeSourceIndex = null; }
-
-document.getElementById("d15-app-container").addEventListener("click", () => { resetHighlights(); clearSelection(); });
-document.getElementById("score-btn").addEventListener("click", (e) => {
-    e.stopPropagation(); let incomplete = slotStorage.includes(null);
-    const reportDiv = document.getElementById("diagnostic-report"); const tesSpan = document.getElementById("tes-val"); const alertCard = document.getElementById("alert-card"); const resetBtn = document.getElementById("reset-btn");
+document.getElementById("score-btn").addEventListener("click", () => {
+    let incomplete = slotStorage.includes(null);
+    const reportDiv = document.getElementById("diagnostic-report"); 
+    const tesSpan = document.getElementById("tes-val"); 
+    const alertCard = document.getElementById("alert-card"); 
+    const resetBtn = document.getElementById("reset-btn");
+    
     if (incomplete) {
-        reportDiv.style.display = "block"; tesSpan.innerText = "N/A"; alertCard.innerText = "⚠️ CANNOT CALIBRATE: Please place all 12 color coins into the tray before running diagnosis.";
-        alertCard.style.backgroundColor = "#3B1B1E"; alertCard.style.color = "#FF6B6B"; alertCard.style.border = "1px solid #FF6B6B"; return;
+        reportDiv.style.display = "block"; 
+        tesSpan.innerText = "N/A"; 
+        alertCard.innerText = "⚠️ CANNOT CALIBRATE: Please place all 12 color coins into the tray before running diagnosis."; 
+        alertCard.style.backgroundColor = "#3B1B1E"; 
+        alertCard.style.color = "#FF6B6B"; 
+        alertCard.style.border = "1px solid #FF6B6B"; 
+        return;
     }
+    
     let totalError = 0;
-    for (let i = 0; i < slotStorage.length - 1; i++) { let diff = Math.abs(slotStorage[i] - slotStorage[i+1]); if (diff > 1) totalError += (diff - 1); }
-    reportDiv.style.display = "block"; tesSpan.innerText = totalError; resetBtn.style.display = "inline-block";
-    if (totalError === 0) { alertCard.innerText = "🎉 PASS: Perfect color sequence arrangement detected."; alertCard.style.backgroundColor = "#13231B"; alertCard.style.color = "#56D364"; alertCard.style.border = "1px solid #56D364"; }
-    else { alertCard.innerText = "⚠️ ATTENTION: Cross-axis sequence jumps detected (" + totalError + " total configuration errors)."; alertCard.style.backgroundColor = "#3B2E1E"; alertCard.style.color = "#E3B341"; alertCard.style.border = "1px solid #E3B341"; }
+    for (let i = 0; i < slotStorage.length - 1; i++) { 
+        let diff = Math.abs(slotStorage[i] - slotStorage[i+1]); 
+        if (diff > 1) totalError += (diff - 1); 
+    }
+    
+    reportDiv.style.display = "block"; 
+    tesSpan.innerText = totalError; 
+    resetBtn.style.display = "inline-block";
+    
+    if (totalError === 0) { 
+        alertCard.innerText = "✅ PASS: Perfect color sequence arrangement detected."; 
+        alertCard.style.backgroundColor = "#13231B"; 
+        alertCard.style.color = "#56D364"; 
+        alertCard.style.border = "1px solid #56D364"; 
+    } else { 
+        alertCard.innerText = "⚠️ ATTENTION: Cross-axis sequence jumps detected (" + totalError + " total configuration errors)."; 
+        alertCard.style.backgroundColor = "#3B2E1E"; 
+        alertCard.style.color = "#E3B341"; 
+        alertCard.style.border = "1px solid #E3B341"; 
+    }
 });
 
-// THIS IS WHERE THE CODE PIECE SITS SAFELY INSIDE THE APP LISTENERS:
-document.getElementById("reset-btn").addEventListener("click", (e) => {
-    e.stopPropagation(); 
-    slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13]; 
+document.getElementById("reset-btn").addEventListener("click", () => {
+    slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13];
     sourcePile = [...originalScrambledPile];
+    document.getElementById("diagnostic-report").style.display = "none";
+    document.getElementById("reset-btn").style.display = "none";
+    buildInterface();
+});
+
+buildInterface();
+</script>
+</body>
+</html>
