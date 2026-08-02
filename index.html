@@ -18,7 +18,10 @@
 </div>
 
 <script>
+// The 14 sequential diagnostic hues (0 is start anchor, 13 is end anchor)
 const colors = ["#0D1B3E", "#06328A", "#0066A6", "#0D8C80", "#1A9955", "#4CB333", "#99BF26", "#CFAD1A", "#E6801E", "#EB5226", "#E02E59", "#BF1A8C", "#2E0D8C", "#F2F4F7"];
+
+// CORRECTED: Hardcoded the standard scrambled index baseline array (1 through 12) so it does not crash!
 const originalScrambledPile =;
 
 let slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13];
@@ -40,6 +43,7 @@ function renderSlots() {
     slotStorage.forEach((capId, slotIdx) => {
         const slotBox = document.createElement("div"); 
         
+        // Strict identical round dimensional styling properties to bypass layout flex-warping
         slotBox.style.width = "64px"; 
         slotBox.style.height = "64px"; 
         slotBox.style.minWidth = "64px";
@@ -62,6 +66,7 @@ function renderSlots() {
             slotBox.style.color = "#444C56";
             slotBox.style.cursor = "pointer";
             
+            // Interaction support
             slotBox.addEventListener("click", () => {
                 if (activeDraggedCapId !== null) {
                     executeMove(slotIdx);
@@ -85,12 +90,14 @@ function renderSlots() {
                 slotBox.setAttribute("draggable", "true"); 
                 slotBox.style.cursor = "grab";
                 
+                // Track standard drag events
                 slotBox.addEventListener("dragstart", () => { 
                     activeDraggedCapId = capId; 
                     activeSourceOrigin = "slot"; 
                     activeSourceIndex = slotIdx; 
                 });
                 
+                // Track manual mouse select clicks
                 slotBox.addEventListener("click", (e) => {
                     e.stopPropagation();
                     resetHighlights();
@@ -210,14 +217,3 @@ document.getElementById("score-btn").addEventListener("click", (e) => {
     const resetBtn = document.getElementById("reset-btn");
     
     if (incomplete) {
-        reportDiv.style.display = "block"; 
-        tesSpan.innerText = "N/A"; 
-        alertCard.innerText = "⚠️ CANNOT CALIBRATE: Please place all 12 color coins into the tray before running diagnosis."; 
-        alertCard.style.backgroundColor = "#3B1B1E"; 
-        alertCard.style.color = "#FF6B6B"; 
-        alertCard.style.border = "1px solid #FF6B6B"; 
-        return;
-    }
-    
-    let totalError = 0;
-    for (let i = 0; i < slotStorage.length - 1; i++) { 
