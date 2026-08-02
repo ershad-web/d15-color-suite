@@ -31,7 +31,9 @@
 
 <script>
 const colors = ["#0D1B3E", "#06328A", "#0066A6", "#0D8C80", "#1A9955", "#4CB333", "#99BF26", "#CFAD1A", "#E6801E", "#EB5226", "#E02E59", "#BF1A8C", "#2E0D8C", "#F2F4F7"];
-const originalScrambledPile =;
+
+// FIXED: Scrambled arrangement indices pre-filled so the framework boots up!
+const originalScrambledPile = [5, 1, 9, 3, 11, 2, 8, 4, 10, 6, 12, 7];
 
 let slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13];
 let sourcePile = [...originalScrambledPile];
@@ -126,4 +128,3 @@ document.getElementById("score-btn").addEventListener("click", (e) => {
 });
 
 document.getElementById("reset-btn").addEventListener("click", (e) => {
-    e.stopPropagation(); slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13]; sourcePile = [...originalScrambledPile];
