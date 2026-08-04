@@ -15,7 +15,7 @@ st.markdown("---")
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
 st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pile at the bottom and drop them into the empty slots in the top Exam Tray. Line them up to create a smooth color sequence from START to END.*")
 
-# 🔒 THE LOCKED COMPONENT GRID MATRIX (Enhanced with Python PostMessage Bridge listeners)
+# 🔒 DRAG AND DROP MATRIX ENGINE (Cleaned from mixed Python comments)
 html_data = (
     '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
     'body { background-color: #0D1117; margin: 0; padding: 10px; font-family: system-ui, sans-serif; color: white; user-select: none; }'
@@ -98,10 +98,7 @@ html_data = (
     '    reportDiv.style.display = "block"; tesSpan.innerText = totalError; resetBtn.style.display = "inline-block";'
     '    if (totalError === 0) { alertCard.innerText = "✅ PASS: Perfect color sequence arrangement detected."; alertCard.style.backgroundColor = "#13231B"; alertCard.style.color = "#56D364"; alertCard.style.border = "1px solid #56D364"; }'
     '    else { alertCard.innerText = "⚠️ ATTENTION: Cross-axis sequence jumps detected (" + totalError + " errors)."; alertCard.style.backgroundColor = "#3B2E1E"; alertCard.style.color = "#E3B341"; alertCard.style.border = "1px solid #E3B341"; }'
-    
-    # 📢 BRIDGE LINE: Sends data securely out of the isolated browser window to Streamlit Python
     '    window.parent.postMessage({is_streamlit: true, slotSequence: slotStorage}, "*");'
-    
     '});'
     'document.getElementById("reset-btn").addEventListener("click", () => {'
     '    slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13]; sourcePile = [...originalScrambledPile];'
@@ -111,14 +108,16 @@ html_data = (
     'buildInterface();</script></body></html>'
 )
 
-# Render the safe layout interface component
-components.html(html_data, height=480, scrolling=True)
+# Render the application
+components.html(html_data, height=530, scrolling=True)
 
 st.markdown("---")
 
-# 🐍 PYTHON PYTHON RUNTIME WORKSPACE 
-# Captures the data from the message event using Streamlit's event tracking layer
-# Note: Streamlit's experimental_dialog or query parameters can catch these parameters natively.
-# For a clean layout, let's output a Python clinical validation logger panel below the test window.
-
 st.markdown("### 📋 Python Clinical Diagnostic Panel")
+st.info("Once the patient clicks 'PROBE DIAGNOSTIC RESULTS' above, Python can log updates below.")
+
+if st.button("💾 Generate Official Patient Report"):
+    st.markdown(f"**Patient Name:** {p_name}")
+    st.markdown(f"**Medical ID:** {p_id}")
+    st.markdown(f"**Retinal Screening Risk Profile:** {risk}")
+    st.success("Clinical document placeholder successfully generated!")
