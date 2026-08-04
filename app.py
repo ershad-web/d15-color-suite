@@ -15,7 +15,7 @@ st.markdown("---")
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
 st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pile at the bottom and drop them into the empty slots in the top Exam Tray. Line them up to create a smooth color sequence from START to END.*")
 
-# Your protected, locked drag-and-drop component workspace
+# We build the application using safe string additions so the Python parser can NEVER crash
 html_data = (
     '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
     'body { background-color: #0D1117; margin: 0; padding: 10px; font-family: system-ui, sans-serif; color: white; user-select: none; }'
@@ -107,17 +107,3 @@ html_data = (
 )
 
 components.html(html_data, height=530, scrolling=True)
-
-st.markdown("---")
-
-# 🩺 NEW: CLINICAL INTERPRETATION GUIDE PANEL FOR DOCTORS
-st.markdown("### 📊 Clinical Interpretation & Severity Matrix")
-st.markdown("Use this lookup grid to evaluate the generated **Total Error Score (TES)** and contextualise patient sequencing errors.")
-
-col1, col2 = st.columns(2)
-
-with col1:
-    st.markdown("#### 🔢 Severity Threshold Levels")
-    st.markdown("""
-    *   **TES = 0**: **Normal Color Vision**. Perfect sequential alignment matching standard wavelength intervals.
-    *   **TES = 1 to 11**: **Mild or Borderline Variance**. Minor local swaps often related to minor fatigue, testing environment glare, or subtle age-related changes.
