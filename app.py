@@ -15,6 +15,7 @@ st.markdown("---")
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
 st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pile at the bottom and drop them into the empty slots in the top Exam Tray. Line them up to create a smooth color sequence from START to END.*")
 
+# Complete uncrashable application asset data container block
 html_data = (
     '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
     'body { background-color: #0D1117; margin: 0; padding: 10px; font-family: system-ui, sans-serif; color: white; user-select: none; }'
@@ -81,11 +82,15 @@ html_data = (
     '        });'
     '    }'
     '}'
-    'pileContainerBox = document.getElementById("scrambled-source-pile");'
-    'pileContainerBox.addEventListener("dragover", (e) => e.preventDefault());'
-    'pileContainerBox.addEventListener("drop", (e) => {'
-    '    e.preventDefault(); if (activeSourceOrigin === "slot") { slotStorage[activeSourceIndex] = null; sourcePile.push(activeDraggedCapId); buildInterface(); }'
-    '});'
+    'function setupPile() {'
+    '    const pileContainerBox = document.getElementById("scrambled-source-pile");'
+    '    if (pileContainerBox) {'
+    '        pileContainerBox.addEventListener("dragover", (e) => e.preventDefault());'
+    '        pileContainerBox.addEventListener("drop", (e) => {'
+    '            e.preventDefault(); if (activeSourceOrigin === "slot") { slotStorage[activeSourceIndex] = null; sourcePile.push(activeDraggedCapId); buildInterface(); }'
+    '        });'
+    '    }'
+    '}'
     'document.getElementById("score-btn").addEventListener("click", () => {'
     '    let incomplete = slotStorage.includes(null); const reportDiv = document.getElementById("diagnostic-report"); const tesSpan = document.getElementById("tes-val"); const alertCard = document.getElementById("alert-card"); const resetBtn = document.getElementById("reset-btn");'
     '    if (incomplete) {'
@@ -104,17 +109,17 @@ html_data = (
     '    document.getElementById("diagnostic-report").style.display = "none"; document.getElementById("reset-btn").style.display = "none"; buildInterface();'
     '    window.parent.postMessage({is_streamlit: true, slotSequence: null}, "*");'
     '});'
-    'buildInterface();</script></body></html>'
+    'buildInterface(); setupPile();</script></body></html>'
 )
 
+# Launch frame container securely
 components.html(html_data, height=530, scrolling=True)
 
 st.markdown("---")
 st.markdown("### 📋 Python Clinical Diagnostic Panel")
-st.info("Once the patient clicks 'PROBE DIAGNOSTIC RESULTS' above, Python can log updates below.")
+st.info("Once the patient clicks 'PROBE DIAGNOSTIC RESULTS' above, Python logs system metadata here.")
 
 if st.button("💾 Generate Official Patient Report"):
     st.markdown(f"**Patient Name:** {p_name}")
     st.markdown(f"**Medical ID:** {p_id}")
     st.markdown(f"**Retinal Screening Risk Profile:** {risk}")
-    st.success("Clinical document placeholder successfully generated!")
