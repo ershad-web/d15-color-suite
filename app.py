@@ -106,5 +106,4 @@ html_data = (
     'buildInterface();</script></body></html>'
 )
 
-# Render the layout component container safely inside your hosted workspace
-components.html(html_data, height=650, scrolling=True)
+components.html(html_data, height=530, scrolling=True)
