@@ -15,7 +15,6 @@ st.markdown("---")
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
 st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pile at the bottom and drop them into the empty slots in the top Exam Tray. Line them up to create a smooth color sequence from START to END.*")
 
-# 🔒 DRAG AND DROP MATRIX ENGINE (Cleaned from mixed Python comments)
 html_data = (
     '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
     'body { background-color: #0D1117; margin: 0; padding: 10px; font-family: system-ui, sans-serif; color: white; user-select: none; }'
@@ -108,11 +107,9 @@ html_data = (
     'buildInterface();</script></body></html>'
 )
 
-# Render the application
 components.html(html_data, height=530, scrolling=True)
 
 st.markdown("---")
-
 st.markdown("### 📋 Python Clinical Diagnostic Panel")
 st.info("Once the patient clicks 'PROBE DIAGNOSTIC RESULTS' above, Python can log updates below.")
 
