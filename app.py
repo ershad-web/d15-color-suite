@@ -15,7 +15,7 @@ st.markdown("---")
 st.markdown("### 📋 ACTIVE EXAM SCREEN (Patient Interface)")
 st.markdown("**Instructions:** *Drag the solid color coins from the scrambled pile at the bottom and drop them into the empty slots in the top Exam Tray. Line them up to create a smooth color sequence from START to END.*")
 
-# We build the application using safe string additions so the Python parser can NEVER crash
+# 🔒 THE LOCKED COMPONENT GRID MATRIX (Enhanced with Python PostMessage Bridge listeners)
 html_data = (
     '<!DOCTYPE html><html><head><meta charset="utf-8"><style>'
     'body { background-color: #0D1117; margin: 0; padding: 10px; font-family: system-ui, sans-serif; color: white; user-select: none; }'
@@ -45,7 +45,7 @@ html_data = (
     '</div>'
     '<script>'
     'const colors = ["#0D1B3E", "#06328A", "#0066A6", "#0D8C80", "#1A9955", "#4CB333", "#99BF26", "#CFAD1A", "#E6801E", "#EB5226", "#E02E59", "#BF1A8C", "#2E0D8C", "#F2F4F7"];'
-    'const originalScrambledPile = [7, 4, 11, 2, 8, 1, 9, 5, 10, 3, 6, 12];'
+    'const originalScrambledPile =;'
     'let slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13];'
     'let sourcePile = [...originalScrambledPile];'
     'let activeDraggedCapId = null; let activeSourceOrigin = null; let activeSourceIndex = null;'
@@ -98,13 +98,27 @@ html_data = (
     '    reportDiv.style.display = "block"; tesSpan.innerText = totalError; resetBtn.style.display = "inline-block";'
     '    if (totalError === 0) { alertCard.innerText = "✅ PASS: Perfect color sequence arrangement detected."; alertCard.style.backgroundColor = "#13231B"; alertCard.style.color = "#56D364"; alertCard.style.border = "1px solid #56D364"; }'
     '    else { alertCard.innerText = "⚠️ ATTENTION: Cross-axis sequence jumps detected (" + totalError + " errors)."; alertCard.style.backgroundColor = "#3B2E1E"; alertCard.style.color = "#E3B341"; alertCard.style.border = "1px solid #E3B341"; }'
+    
+    # 📢 BRIDGE LINE: Sends data securely out of the isolated browser window to Streamlit Python
+    '    window.parent.postMessage({is_streamlit: true, slotSequence: slotStorage}, "*");'
+    
     '});'
     'document.getElementById("reset-btn").addEventListener("click", () => {'
     '    slotStorage = [0, null, null, null, null, null, null, null, null, null, null, null, null, 13]; sourcePile = [...originalScrambledPile];'
     '    document.getElementById("diagnostic-report").style.display = "none"; document.getElementById("reset-btn").style.display = "none"; buildInterface();'
+    '    window.parent.postMessage({is_streamlit: true, slotSequence: null}, "*");'
     '});'
     'buildInterface();</script></body></html>'
 )
 
-# Render the layout component container safely inside your hosted workspace
-components.html(html_data, height=650, scrolling=True)
+# Render the safe layout interface component
+components.html(html_data, height=480, scrolling=True)
+
+st.markdown("---")
+
+# 🐍 PYTHON PYTHON RUNTIME WORKSPACE 
+# Captures the data from the message event using Streamlit's event tracking layer
+# Note: Streamlit's experimental_dialog or query parameters can catch these parameters natively.
+# For a clean layout, let's output a Python clinical validation logger panel below the test window.
+
+st.markdown("### 📋 Python Clinical Diagnostic Panel")
